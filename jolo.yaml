@@ -1,0 +1,1741 @@
+jolo: '1.0'
+info:
+  title: Optimizely X Web JavaScript API
+  description: |
+    Use the Optimizely object to send information, control campaign execution
+    and build your experiments
+  version: '1.0'
+baseObject: 'window["optimizely"]'
+version: '1.0'
+functionTypes:
+  js-setter:
+    description: |
+      Functions that set information that can be used for reporting and
+      targeting {{ baseObject }}
+    representation: "{{ baseObject }}.push({% arguments %});"
+    initialize: "{{ baseObject }} = {{ baseObject }} || [];"
+  js-getter:
+    description: |
+      Functions to read information about the current state of the Optimizely
+      object
+    representation: "{{ baseObject }}.get({% arguments %});"
+  callback:
+    description: |
+      A callback that is used a function parameter
+    representation: "function({% arguments %}){ //implement your callback function };"
+functions:
+  setEvent:
+    title: Event
+    type: js-setter
+    tldr: |
+      Track custom events in Optimizely. The event `eventName` will be tracked
+      and associated with the current visitor.
+    description: |
+      The `event` method captures visitor behavior and additional data.
+      You can track clicks and pageviews in Optimizely without code, but
+      this API call supports tracking other behaviors like watching a video.
+      These events can be used for measuring the results of a campaign,
+      or for defining an audience based on behavior.
+      [Learn more about
+      events](https://help.optimizely.com/Get_Started/Six_core_concepts_of_Optimizely_Personalization#events).
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              EventObject: null
+            representation: "{{ types.objects.EventObject.representation }}"
+            description: |
+              The event object contains all the information regarding
+              an event that occured. The `type` property needs to be set to `event`.
+            default: # There is no default value
+            format: event
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  setPage:
+    title: Page
+    type: js-setter
+    tldr: |
+      The page method tracks the visitor's current context on a website. This
+      context is used for both analytics ("track the number of views to the
+      checkout page") and targeting ("run this experiment on the checkout
+      page").
+    description: |
+      The `page` method tracks the visitor's current context on a website.
+      This context is used for both analytics ("track the number of views to
+      the checkout page") and targeting ("run this experiment on the checkout
+      page").
+      [Learn more about pages.](https://help.optimizely.com/hc/en-us/articles/210306928#pages)
+
+      Specifically, pushing a page has two effects:
+       * Optimizely will track a pageview event for this page, incrementing the
+       count of views to that page in analytics and recording the event in the
+       user's behavioral profile
+       * Any campaigns targeted to this page will be activated
+
+      Pages can be created visually in Optimizely with URL targeting, but
+      this API call allows you to manually activate a page. This allows full
+      flexibility for sites with dynamic content or challenging URL patterns.
+
+      Page information is reset whenever the browser reloads.
+    variations:
+      variation_key_1:
+        arguments:
+        - types:
+            PageObject: null
+          representation: "{{ types.objects.PageObject.representation }}"
+          description: This is a page object
+          format: page
+          default: # There is no default value
+          keyword: # No keyword arguments possible in JS
+          required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  setTag:
+    title: Tags
+    type: js-setter
+    tldr: |
+      Tags are contextual metadata about pages and events. They identify what
+      a user is looking at, clicking on, or interacting with.
+    description: |
+      Tags are contextual metadata about pages and events. They identify what
+      a user is looking at, clicking on, or interacting with. For example, you
+      can use tags to describe a product being purchased, an article being
+      read, or a flight being booked.
+      [Learn more about tags.](https://help.optimizely.com/hc/en-us/articles/210306928#tags)
+
+      There are three ways to capture this context:
+       * Directly on an [event](#events), using the `tags` property.
+       * Directly on a [page](#pages), using the `tags` property. These tags
+       will be sent along with any event that happens on that page.
+       * Finally, you can use this `tags` method directly to add context
+       without activating a page and tracking a pageview. This is equivalent
+       to the previous option, but it can be used when pages are already
+       being activated using URL targeting.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              TagObject: null
+            representation: "{{ types.objects.TagObject.representation }}"
+            description: This is an event object
+            default: # There is no default value
+            format: tag
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  setUser:
+    title: User
+    type: js-setter
+    tldr: |
+      The `user` method captures attributes of a user and stores them in a
+      profile that persists across sessions and syncs across devices. These
+      attributes are persisted in the browser's local storage and can be used
+      for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a
+      profile that persists across sessions and syncs across devices. These
+      attributes are persisted in the browser's local storage and can be used
+      for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to
+      specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              UserObject: null
+            representation: "{{ types.objects.UserObject.representation }}"
+            description: This is an event object
+            format: user
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+    examples:
+      unset:
+        title: Unsetting a user attribute value
+        code: |
+          // To remove an attribute value, set it to null
+          window["optimizely"].push({
+            type: "user",
+            attributes: {
+              frequentFlyerStatus: null
+            }
+          });
+        description: |
+          If you have previously set an attribute value that you
+          would like to unset for a user, you can give the attribute the value
+          `null`.
+  getData:
+    title: Data
+    type: js-getter
+    tldr: Returns an object exposing static data fields.
+    description: |
+      A function to get the `data` object. The `data` object contains the
+      fields the objects you have created
+      using the Optimizely UI or REST API. For example: if you create a new
+      experiment using an Audience, Page and Event, than you can expect to find
+      all of those objects in the `data` object that is returned from this
+      function.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            StaticData:
+          representation: "{{types.objects.StaticData.representation}}"
+  getVisitor:
+    title: Visitor
+    type: js-getter
+    tldr: |
+      Optimizely uses visitor attributes for targeting and segmentation. The
+      `visitor` object contains all that can be used for targeting and segmentation.
+    description: |
+      Optimizely uses visitor attributes for targeting and segmentation. The
+      visitor object contains all that can be used for targeting and segmentation.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: visitor
+            representation: visitor
+            description: The argument indicating to get visitor information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getState:
+    title: State
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: state
+            representation: state
+            description: The argument indicating to get data information
+            format: state
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            StateObject:
+          representation: true
+  getCampaignStates:
+    title: getCampaignStates()
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getPageStates:
+    title: getPageStates()
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  isGlobalHoldback:
+    title: isGlobalHoldback()
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getVariationMap:
+    title: getVariationMap()
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getActiveExperimentIds:
+    title: getActiveExperimentIds()
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getRedirectInfo:
+    title: getRedirectInfo()
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getVisitorId:
+    title: Visitor ID
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getSession:
+    title: Session
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getBehavior:
+    title: Behavior
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  query:
+    title: query
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getDCP:
+    title: Customer Profiles
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getAttributeValue:
+    title: getAttributeValue()
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  waitForAttributeValue:
+    title: waitForAttributeValue()
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  getUtilities:
+    title: Utilities
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  waitForElement:
+    title: waitForElement
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  observeSelector:
+    title: observeSelector
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  poll:
+    title: poll
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  waitUntil:
+    title: waitUntil
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  cancelAll:
+    title: cancelAll
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  registerListeners:
+    title: Listeners
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  initialized:
+    title: API Initialized
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  campaignDecided:
+    title: Campaign Decided
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  pageActivated:
+    title: Page Activated
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  optOut:
+    title: Opt Out
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  cookieExpiration:
+    title: Cookie Experiration
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  cookieDomain:
+    title: Cookie Domain
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  disable:
+    title: Disable
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  log:
+    title: Log
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  bucketVisitor:
+    title: Bucket Visitor
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+  activate:
+    title: Activate
+    type: js-getter
+    tldr: The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+    description: |
+      The `user` method captures attributes of a user and stores them in a profile that persists across sessions and syncs across devices. These attributes are persisted in the browser's local storage and can be used for targeting and analysis.
+
+      The attributes can be used in Optimizely for targeting experiences to specific users or to segment your experiment results on.
+    variations:
+      variation_key_1:
+        arguments:
+          - types:
+              string:
+                value: data
+            representation: data
+            description: The argument indicating to get data information
+            format: data
+            default: # There is no default value
+            keyword: # No keyword arguments possible in JS
+            required: true
+        return:
+          description: |
+            Returns the length of the array if Optimizely isn't initialized yet.
+            After Optimizely is initialized ther return value becomes a boolean.
+            It indicates if the argument was in a valid format.
+          types:
+            boolean:
+            integer:
+          representation: true
+types:
+  objects:
+    EventObject:
+      title: Event
+      description: An object that describes the event that happened.
+      properties:
+        type:
+          types:
+            string:
+          value: event
+          description: |
+            This is a static value that indicates that you are using the `event`
+            function.
+          required: true
+        eventName:
+          types:
+            string:
+          description: |
+            The "API name" for a page created in Optimizely, e.g. product_detail.
+            Choose the "manual activation" option in page creation to see or
+            change this name.
+          required: true
+        tags:
+          types:
+            EventTag:
+          description: |
+            A single-level JSON object with metadata about an event, e.g. the product
+            being purchased.
+      additionalProperties: false
+      representation: "{{ types.objects.EventObject.example }}"
+      example:
+        type: event
+        eventName: watchedVideo
+        tags: "{{ types.objects.EventTag.example }}"
+    EventTag:
+      title: Tag
+      additionalProperties: true
+      representation: "{{ types.objects.EventTag.example }}"
+      properties:
+        revenue:
+          types:
+            integer:
+          value: 5000
+          description: |
+            The revenue value will be associated to the event you are sending.
+            You can to reporting on revenue values in Optimizely. `revenue`
+            should be an integer equal to 100 times the value in dollars (or
+            another currency if you prefer).
+          required: true
+      example:
+        title: Funny Cats
+        duration: 30
+        revenue: 5000
+    PageObject:
+      title: Page
+      properties:
+        type:
+          types:
+            string:
+          value: page
+          description: |
+            This is a static value that indicates that you are using the `page`
+            function.
+          required: true
+        pageName:
+          types:
+            string:
+          description: |
+            The "API name" for a page created in Optimizely, e.g. product_detail.
+            Choose the "manual activation" option in page creation to see or
+            change this name.
+          required: true
+        tags:
+          types:
+            PageTag:
+          description: |
+            A single-level JSON object with metadata about an event, e.g. the product
+            being purchased.
+      additionalProperties: false
+      representation: "{{ types.objects.PageObject.example }}"
+      example:
+        type: page
+        pageName: watchedVideo
+        tags: "{{ types.objects.PageTag.example }}"
+    PageTag:
+      title: Tag
+      additionalProperties: true
+      representation: "{{ types.objects.PageTag.example }}"
+      example:
+        category: Kitchen
+        subcategory: Blenders
+        price: 64999
+        sku: 113757
+    TagObject:
+      title: Tag
+      properties:
+        type:
+          types:
+            string:
+          value: tags
+          description: |
+            This is a static value that indicates that you are using the `tag`
+            function.
+          required: true
+        tags:
+          types:
+            pageTag:
+          description: |
+            A single-level JSON object with meta-data. This is equivalent to
+            page tags, but it can be used when pages are already being activated using URL targeting.
+      additionalProperties: true
+      representation: "{{ types.objects.TagObject.example }}"
+      example:
+        type: tags
+        tags: "{{ types.objects.PageTag.example }}"
+    UserObject:
+      title: User
+      properties:
+        type:
+          types:
+            string:
+          value: user
+          description: |
+            This is a static value that indicates that you are using the `user`
+            function.
+          required: true
+        attributes:
+          types:
+            UserAttributes:
+          description: |
+            Metadata about a user, e.g. their home state. Attributes can be
+            used for discovering and targeting audiences.
+      additionalProperties: false
+      representation: "{{ types.objects.UserObject.example }}"
+      example:
+        type: user
+        tags: "{{ types.objects.UserAttributes.representation }}"
+    UserAttributes:
+      title: UserAttributes
+      additionalProperties: true
+      representation: "{{ types.objects.UserAttributes.example }}"
+      example:
+        frequentFlyerStatus: "Gold"
+        frequentFlyerMiles: 25600
+    StateObject:
+      title: StateObject
+      properties:
+        getCampaignStates:
+          types:
+            getCampaignStates:
+          value: getCampaignStates
+          description: |
+            This is a static value that indicates that you are using the event
+            function.
+        getPageStates:
+          types:
+            getPageStates:
+          value: getPageStates
+          description: |
+            This is a static value that indicates that you are using the event
+            function.
+      representation: "test"
+      example:
+    StaticData:
+      title: StaticData
+      properties:
+        audiences:
+          types:
+            object:
+              items:
+                Audience:
+          description: |
+            An object mapping an Audience ID to an Audience.
+        events:
+          types:
+            object:
+              items:
+                Event:
+          description: |
+            An object mapping an Event ID to an Event. Events determine how/what
+            user behavior is tracked.
+        campaigns:
+          types:
+            object:
+              items:
+                Campaign:
+          description: |
+            An object mapping a Campaign ID to a Campaign. Campaigns are
+            generated in Projects and help tie Audiences to Experiences.
+        pages:
+          types:
+            object:
+              items:
+                Page:
+          description: |
+            An object mapping of a Page ID to a Page. Pages are used to determine
+            where experiments will execute and to track user behavior.
+        experiments:
+          types:
+            object:
+              items:
+                Experiment:
+          description: |
+            An object mapping of an Experiment ID to an Experiment. Every Campaign
+            has one or more Experiments.
+        variations:
+          types:
+            object:
+              items:
+                Variation:
+          description: |
+            An object mapping of a Variation ID to a Variation. The Variations are
+            used in Experiments / Experiences.
+        projectId:
+          types:
+            string:
+          description: |
+             The id of your Optimizely project that is installed on this page.
+        accountId:
+          types:
+            string:
+          description: |
+            The id of your Optimizely account.
+        dcpServiceId:
+          types:
+            string:
+            null:
+          description: |
+            The id of a [DCP service](/rest/v1/#dcp_services) associated to the project installed on this page.
+        revision:
+          types:
+            string:
+          description: |
+            The revision of your snippet. The revision is incremented everytime the snippet is updated.
+      representation: "{{types.objects.StaticData.example}}"
+      example:
+        audiences:
+          4728608810: '{{types.objects.Audience.representation}}'
+        events:
+          4958230289: '{{types.objects.Event.representation}}'
+        campaign:
+          6676370413: '{{types.objects.Campaign.representation}}'
+        pages:
+          6678290257: '{{types.objects.Page.representation}}'
+        experiments:
+          4876961060: '{{types.objects.Experiment.representation}}'
+        variations:
+          6626731852: '{{types.objects.Variation.representation}}'
+        projectId: '6663270427'
+        accountId: '200607994'
+        revision: '2433'
+        dcpServiceId: "3383760141"
+    Audience:
+      title: Audience
+      properties:
+        conditions:
+          types:
+            array:
+          description: |
+            Conditions the visitor must have to be in the audience. [Read more about conditions](/x/rest/conditions/).
+        id:
+          types:
+            integer:
+          description: |
+            The id of the Audience
+        name:
+          types:
+            string:
+          description: |
+            A single-level JSON object with meta-data. This is equivalent to
+            page tags, but it can be used when pages are already being activated using URL targeting.
+      representation: "{{ types.objects.Audience.example }}"
+      example:
+        conditions:
+        - and
+        - - or
+          - - or
+            - value: search
+              type: source_type
+              name:
+              match:
+            - value: campaign
+              type: source_type
+              name:
+              match:
+        id: '6618392098'
+        name: Search traffic
+    Event:
+      title: Event
+      properties:
+        apiName:
+          types:
+            string:
+          description: |
+            A machine readable name for the event. The `apiName` value can
+            be used in the [Event](#function_setevent) function to indicate
+            which event has occured.
+        eventType:
+          types:
+            string:
+          description: |
+            The `eventType` of the event can be either be `custom` or `click` to
+            indicate that this event is a Click event or a Custom event. Click
+            events ared tied to a specific page and are automatically triggered
+            when a click occurs on the element indicated by the
+            `eventFilter.selector` value. Custom events need to be manually
+            triggered by executing the
+            [Event](#function_setevent) function.
+        eventFilter:
+          types:
+            EventFilter:
+            undefined:
+          description: |
+            A filter that indicates when an event can automatically be
+            triggered. This is currently only set for events with the
+            `eventType` "Click". The filter value is "undefined" for events
+            with the `eventType` value set to "custom".
+        id:
+          types:
+            integer:
+          description: |
+            The event id.
+        category:
+          types:
+            string:
+          description: |
+            An event category that was selected upon creation of the event.
+            Some valid values for category are: "added to cart", "saved",
+            "shared", "searched", "purchased", "converted", "signed up",
+            "subscribed", "other".
+        name:
+          types:
+            string:
+          description: |
+            A user chosen name for an event.
+        pageId:
+          types:
+            integer:
+            undefined:
+          description: |
+            A page id that indicated the Page object this event is related to.
+            This event is only executed on the urls set in the Page object. The
+            `pageId` field is always undefined for events with the `eventType`
+            set to "custom".
+      representation: "{{ types.objects.Event.example }}"
+      example:
+        category: other
+        name:
+        eventType: click
+        apiName: blog_clicks_hero_nav
+        id: '4958230289'
+        eventFilter: "{{ types.objects.EventFilter.representation }}"
+        pageId: '4761512980'
+    EventFilter:
+      title: EventFilter
+      properties:
+        filterType:
+          types:
+            string:
+          description: |
+            The type of filter for an event. Currently the only valid value is
+            `target_selector`.
+        selector:
+          types:
+            string:
+          description: |
+            A css style selector that indicates which element on the page is
+            being tracked.
+      representation: "{{ types.objects.EventFilter.example }}"
+      example:
+        filterType: .hero-container
+        selector: target_selector
+    Campaign:
+      title: Campaign
+      properties:
+        activation:
+          types:
+            ActivationConditionsObject:
+            null:
+          description: |
+            Conditions set for a campaign that dictate when a campaign can be
+            activated.
+        changes:
+          types:
+            string:
+            null:
+          description: |
+            Changes on a campaign level. These changes are executed every time
+            the campaign gets activated, regardless of the Experiment and
+            Variation a visitor is assigned to.
+        commitId:
+          types:
+            string:
+          description: |
+            A new "commit" is made every time a Campaign is published. The
+            commit id refers to the commit that was made. Every time a Campaign
+            is published, the commit id changes.
+        experiments:
+          types:
+            array:
+              items:
+                Experiment:
+          description: |
+            An array of Experiments within the Campaign. For AB tests, there is
+            always one experiment. Personalization Campaigns can have more
+            Experiments.
+        id:
+          types:
+            string:
+          description: |
+            The id of the Campaign.
+        name:
+          types:
+            string:
+          description: |
+            The name of the Campaign.
+        holdback:
+          types:
+            integer:
+          description: |
+            The holdback value on a Campaign represents the percentage of
+            visitors that are excluded from a Campaign. If the holdback is set
+            to 500 than 5% of all visitors are excluded from the Campaign.
+        policy:
+          types:
+            string:
+          description: |
+            The policy of a campaign indicates if the campaign is an AB test or
+            a Personalization campaign. The possible values are:
+            - "single_experiment": A normal AB test
+            - "random": A Personalization campaign
+        integrationSettings:
+          types:
+            IntegrationObject:
+          description: |
+            An object that contains all the integration settings that are enabled
+            for this campaign.
+        pageIds:
+          types:
+            array:
+              items:
+                string:
+          description: |
+            An array with the idsd of all the pages that are used within the
+            campaign.
+        weightDistributions:
+          types:
+            WeightDistributionsObject:
+            null:
+          #TODO
+          description: |
+
+      representation: "{{ types.objects.Campaign.example }}"
+      example:
+        type: tags
+    #TODO
+    WeightDistributionsObject:
+    ActivationConditionsObject:
+    IntegrationObject:
+    Page:
+      title: Page
+      properties:
+        apiName:
+          types:
+            string:
+          description: |
+            A machine readable name for the Page. The `apiName` value can
+            be used in the [Page](#function_setpage) function to indicate
+            which event has occured.
+        id:
+          types:
+            integer:
+          description: |
+            The page id.
+        category:
+          types:
+            string:
+          description: |
+            An event category that was selected upon creation of the Page.
+            Some valid values for category are: "added to cart", "saved",
+            "shared", "searched", "purchased", "converted", "signed up",
+            "subscribed", "other".
+        staticConditions:
+          types:
+            array:
+          description: |
+            A user chosen name for a page .
+        tags:
+          types:
+            array:
+              items:
+                VisualTagObject:
+          description: |
+            An array of the visual tags saved on a page. Read more about
+            visual tags [here](https://help.optimizely.com/Set_Up_Optimizely/Instrument_your_site_for_Optimizely_X_Web#3._Add_Tags).
+      representation: "{{ types.objects.Page.example }}"
+      example:
+        type: tags
+    #TODO
+    VisualTagObject:
+    Experiment:
+      title: Experiment
+      properties:
+        audienceIds:
+          types:
+            array:
+              items:
+                integer:
+          description: |
+            Conditions the visitor must have to be in the audience. [Read more about conditions](/x/rest/conditions/).
+        audienceName:
+          types:
+            string:
+          description: |
+            Conditions the visitor must have to be in the audience. [Read more about conditions](/x/rest/conditions/).
+        id:
+          types:
+            string:
+          description: |
+            The id of the Experiment.
+        name:
+          types:
+            string:
+          description: |
+            The name of the Experiment.
+        integrationSettings:
+          types:
+            IntegrationObject:
+          description: |
+            An object that contains all the integration settings that are enabled
+            for this Experiment.
+        variations:
+          types:
+            array:
+              items:
+                Variation:
+        weightDistributions:
+          types:
+            null:
+            WeightDistributionsObject:
+        #TODO
+        description: |
+
+      representation: "{{ types.objects.Experiment.example }}"
+      example:
+        type: tags
+    Variation:
+      title: Variation
+      properties:
+        actions:
+          types:
+            Action:
+          description: |
+            The actions that are executed once a visitor get's bucketed in
+            this variation. The actions describe the variation.
+        id:
+          types:
+            pageTag:
+          description: |
+            The id of the Variation.
+        name:
+          types:
+            string:
+          description: |
+            The name of the Variation.
+      representation: "{{ types.objects.Variation.example }}"
+      example:
+        type: tags
+    # TODO
+    Action:
+  datatypes:
+    Undefined:
+      typeInSchema: string
+      pattern: /Undefined/
+      possibleOptions: # Inherited from string because typeInSchema = string
+      representation: Undefined
+    RegEx:
+      typeInSchema: string
+      pattern: /\/.*\/(gimy|gim|giy|gi|gmy|gm|gy|g|imy|im|iy|i|my|m|y)?/
+      possibleOptions: # Inherited from string because typeInSchema = string
+      representation: RegEx
+errors:

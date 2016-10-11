@@ -1,0 +1,14 @@
+{
+  "name": "jolo_debug",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "jolo-converter": ">=1.0.6"
+  },
+  "author": "",
+  "license": "ISC"
+}
